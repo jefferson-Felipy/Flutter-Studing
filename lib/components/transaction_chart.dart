@@ -46,7 +46,6 @@ class TransactionChartState extends State<TransactionChart> {
     return Card(
       color: Theme.of(context).colorScheme.primary,
       child: Container(
-        width: double.infinity,
         padding: EdgeInsets.all(10),
         margin: EdgeInsets.all(6),
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
