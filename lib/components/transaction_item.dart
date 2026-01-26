@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:open_editor/components/adaptative_dialog.dart';
+import 'package:open_editor/components/adaptatives/adaptative_dialog.dart';
 import 'package:open_editor/models/transaction.dart';
 
 class TransactionItem extends StatefulWidget {
@@ -46,6 +46,11 @@ class TransactionItemState extends State<TransactionItem> {
     _background = colors[i];
   }
 
+  String truncate(String text, maxLength) {
+    if (text.length < maxLength) return text;
+    return '${text.substring(0, maxLength)}...';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -73,7 +78,12 @@ class TransactionItemState extends State<TransactionItem> {
                       ),
                     ),
                     Text(widget.tr.carteira, style: TextStyle(fontSize: 14)),
-                    Text(widget.tr.nota, style: TextStyle(fontSize: 13)),
+                    Text(
+                      truncate(widget.tr.descricao, 20),
+                      style: TextStyle(fontSize: 13),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
                 Column(
@@ -92,7 +102,12 @@ class TransactionItemState extends State<TransactionItem> {
                       DateFormat('dd/MM/yyyy').format(widget.tr.date),
                       style: TextStyle(fontSize: 14),
                     ),
-                    Text(widget.tr.nota, style: TextStyle(fontSize: 13)),
+                    Text(
+                      truncate(widget.tr.nota, 20),
+                      style: TextStyle(fontSize: 13),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
               ],
