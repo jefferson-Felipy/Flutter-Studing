@@ -6,6 +6,7 @@ class Transaction {
   final DateTime date;
   final String nota;
   final String descricao;
+  final bool verifyTransaction;
 
   const Transaction({
     required this.id,
@@ -15,5 +16,6 @@ class Transaction {
     required this.date,
     required this.descricao,
     required this.nota,
+    required this.verifyTransaction
   });
 }
