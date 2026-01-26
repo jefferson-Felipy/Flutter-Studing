@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class TransactionTotal extends StatelessWidget {
-  const TransactionTotal({super.key});
+  final double totalSumTransactions;
+  const TransactionTotal({super.key, required this.totalSumTransactions});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,18 @@ class TransactionTotal extends StatelessWidget {
               width: 150,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [Text('Total'), Text('00.00')],
+                children: [
+                  Text('Total'),
+                  FittedBox(
+                    child: Text(
+                      totalSumTransactions.toStringAsFixed(2),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
