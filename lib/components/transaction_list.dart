@@ -23,20 +23,32 @@ class TransactionList extends StatelessWidget {
           children: [
             Center(child: Text('Transações')),
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: transactions.length,
-                itemBuilder: (context, index) {
-                  final tr = transactions[index];
+            transactions.isEmpty
+                ? Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Center(
+                        child: Text(
+                          'Nehuma Transação cadastrada',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  )
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: transactions.length,
+                      itemBuilder: (context, index) {
+                        final tr = transactions[index];
 
-                  return TransactionItem(
-                    key: GlobalObjectKey(tr),
-                    tr: tr,
-                    removeTransaction: removeTransaction,
-                  );
-                },
-              ),
-            ),
+                        return TransactionItem(
+                          key: GlobalObjectKey(tr),
+                          tr: tr,
+                          removeTransaction: removeTransaction,
+                        );
+                      },
+                    ),
+                  ),
           ],
         ),
       ),
