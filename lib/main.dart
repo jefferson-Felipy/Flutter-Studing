@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
 import 'package:open_editor/components/transaction_chart.dart';
 import 'package:open_editor/components/transaction_form.dart';
 import 'package:open_editor/components/transaction_list.dart';
@@ -6,6 +7,12 @@ import 'package:open_editor/components/transaction_total.dart';
 import 'package:open_editor/models/transaction.dart';
 
 void main() {
+  // SystemChrome.setPreferredOrientations([
+  //   DeviceOrientation.portraitUp,
+  //   DeviceOrientation.portraitDown,
+  //   DeviceOrientation.landscapeLeft,
+  //   DeviceOrientation.landscapeRight,
+  // ]);
   runApp(const HomePageApp());
 }
 
@@ -58,35 +65,7 @@ class OpenEditorApp extends StatefulWidget {
 
 class OpenEditorAppState extends State<OpenEditorApp> {
   //Lista de transações_
-  final List<Transaction> _transactions = [
-    Transaction(
-      id: '1',
-      value: 56.2,
-      categoria: 'Besteiras',
-      carteira: 'Carteira',
-      date: DateTime.now().subtract(Duration(days: 2)),
-      descricao: 'Sorvete a noite',
-      nota: 'Comprei sorvete ',
-    ),
-    Transaction(
-      id: '2',
-      value: 125.23,
-      categoria: 'Carro',
-      carteira: 'Cartao',
-      date: DateTime.now().subtract(Duration(days: 1)),
-      descricao: 'Carro de formula 1',
-      nota: 'Comprei um carro',
-    ),
-    Transaction(
-      id: '3',
-      value: 22.3,
-      categoria: 'Salgadinho',
-      carteira: 'Carteira',
-      date: DateTime.now(),
-      descricao: 'Comprei salgadinhp',
-      nota: 'Salgadinho',
-    ),
-  ];
+  final List<Transaction> _transactions = [];
 
   //Lista de transações da mesma semana filtrada usando o where()_
   List<Transaction> get _recentTransactions {
@@ -95,19 +74,25 @@ class OpenEditorAppState extends State<OpenEditorApp> {
     }).toList();
   }
 
-  void sheetModalBottom() {
-    showModalBottomSheet(
-      elevation: 6,
-      isDismissible: false,
-      enableDrag: false,
-      isScrollControlled: true,
-      context: context,
-      builder: (_) {
-        return TransactionForm();
-      },
-    );
+  //Criando novas transações_
+  void _createNewTransaction(Transaction tr) {
+    setState(() {
+      _transactions.add(
+        Transaction(
+          id: tr.id,
+          value: tr.value,
+          categoria: tr.categoria,
+          carteira: tr.carteira,
+          date: tr.date,
+          descricao: tr.descricao,
+          nota: tr.nota,
+          verifyTransaction: tr.verifyTransaction,
+        ),
+      );
+    });
   }
 
+  //removendo transações_
   void _removeTransaction(String id) {
     setState(() {
       _transactions.removeWhere((tr) {
@@ -116,9 +101,41 @@ class OpenEditorAppState extends State<OpenEditorApp> {
     });
   }
 
+  //Modal inferior para o formulário_
+  void sheetModalBottom() {
+    showModalBottomSheet(
+      elevation: 6,
+      isDismissible: false,
+      enableDrag: false,
+      isScrollControlled: true,
+      context: context,
+      builder: (_) {
+        return TransactionForm(createTransaction: _createNewTransaction);
+      },
+    );
+  }
+
+  //verifica se o chart esta ativo_
+  bool isChart = true;
+  //OBS: Toda propriedade que sofrerá mudança de estado ao decorrer da aplicação,
+  //deve ficar fora do método build();
+  //O método build() não guarda estado;
+
+  //Calcula a soma das transações_
+  double sumTransactions() {
+    return _recentTransactions.fold(
+      0.0,
+      (initValue, tr) => initValue + tr.value,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    //verifica se a tela esta na orientação paisagem_
+    final bool windowOrientationLandscape =
+        mediaQuery.orientation == Orientation.landscape;
 
     final AppBar appBar = AppBar(
       title: Padding(
@@ -126,17 +143,27 @@ class OpenEditorAppState extends State<OpenEditorApp> {
         child: Text('Transações Pessoais'),
       ),
       actions: [
+        if (windowOrientationLandscape)
+          IconButton(
+            onPressed: () {
+              setState(() {
+                isChart = !isChart;
+              });
+            },
+            icon: Icon(isChart ? Icons.pie_chart : Icons.list_alt_outlined),
+          ),
         IconButton(
-          onPressed: () {},
+          onPressed: () => sheetModalBottom(),
           icon: Icon(Icons.add, size: Theme.of(context).iconTheme.size),
         ),
-        IconButton(
-          onPressed: () {},
-          icon: Icon(
-            Icons.account_balance_wallet_rounded,
-            size: Theme.of(context).iconTheme.size,
+        if (!windowOrientationLandscape)
+          IconButton(
+            onPressed: () {},
+            icon: Icon(
+              Icons.account_balance_wallet_rounded,
+              size: Theme.of(context).iconTheme.size,
+            ),
           ),
-        ),
       ],
     );
 
@@ -151,24 +178,64 @@ class OpenEditorAppState extends State<OpenEditorApp> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // if (windowOrientationLandscape)
+            //   Container(
+            //     padding: EdgeInsets.all(heightWidgetPage * 0.05),
+            //     height: heightWidgetPage * 0.15,
+            //     child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         Text(
+            //           'Exibir Gráfico',
+            //           style: TextStyle(
+            //             color: Theme.of(context).colorScheme.primary,
+            //           ),
+            //         ),
+            //         SizedBox(width: 10),
+            //         Switch.adaptive(
+            //           activeThumbColor: Colors.amberAccent,
+            //           inactiveThumbColor: Colors.blueGrey,
+            //           value: isChart,
+            //           onChanged: (value) {
+            //             setState(() {
+            //               isChart = value;
+            //             });
+            //           },
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+
             //Chart_
-            SizedBox(
-              height: heightWidgetPage * 0.25,
-              child: TransactionChart(recentTransactions: _recentTransactions),
-            ),
-            //Total das transações
-            SizedBox(
-              height: heightWidgetPage * 0.15,
-              child: TransactionTotal(),
-            ),
-            //Lista de Transações
-            SizedBox(
-              height: heightWidgetPage * 0.6,
-              child: TransactionList(
-                transactions: _recentTransactions,
-                removeTransaction: _removeTransaction,
+            if (isChart || !windowOrientationLandscape)
+              SizedBox(
+                height:
+                    heightWidgetPage *
+                    (windowOrientationLandscape ? 0.95 : 0.25),
+                child: TransactionChart(
+                  recentTransactions: _recentTransactions,
+                ),
               ),
-            ),
+            //Total das transações
+            if (!isChart || !windowOrientationLandscape)
+              SizedBox(
+                height:
+                    heightWidgetPage * (windowOrientationLandscape ? 0.2 : 0.1),
+                child: TransactionTotal(
+                  totalSumTransactions: sumTransactions(),
+                ),
+              ),
+            //Lista de Transações
+            if (!isChart || !windowOrientationLandscape)
+              SizedBox(
+                height:
+                    heightWidgetPage *
+                    (windowOrientationLandscape ? 0.8 : 0.65),
+                child: TransactionList(
+                  transactions: _recentTransactions,
+                  removeTransaction: _removeTransaction,
+                ),
+              ),
           ],
         ),
       ),
@@ -181,7 +248,9 @@ class OpenEditorAppState extends State<OpenEditorApp> {
         onPressed: () => sheetModalBottom(),
         child: Icon(Icons.add, color: const Color.fromARGB(255, 0, 0, 0)),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: windowOrientationLandscape && isChart
+          ? FloatingActionButtonLocation.centerFloat
+          : FloatingActionButtonLocation.endFloat,
     );
   }
 }
